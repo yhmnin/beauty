@@ -1,7 +1,9 @@
 import OpenAI from "openai";
 import type { DiscoveredItem } from "@/lib/discovery/sources";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAI() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
+}
 
 export interface ProvenanceData {
   creator: string;
@@ -24,7 +26,7 @@ export async function generateProvenance(
   }
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
