@@ -170,7 +170,7 @@ export function ExploreView() {
               className={cn(
                 "flex-shrink-0 px-4 py-2 rounded-[var(--radius-full)] text-sm font-medium transition-all duration-300 cursor-pointer",
                 activeCategory === cat.id && !activeTagFilter
-                  ? "bg-accent text-bg-primary"
+                  ? "bg-text-primary text-bg-primary"
                   : "bg-bg-secondary text-text-tertiary border border-border hover:text-text-secondary hover:border-border-hover"
               )}
             >
@@ -435,7 +435,7 @@ function ContentDetailPanel({
                   href={item.musicUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2 rounded-[var(--radius-full)] bg-accent text-bg-primary text-sm font-medium hover:bg-accent-muted transition-colors"
+                  className="px-5 py-2 rounded-[var(--radius-full)] bg-text-primary text-bg-primary text-sm font-medium hover:bg-text-secondary transition-colors"
                 >
                   Listen
                 </a>

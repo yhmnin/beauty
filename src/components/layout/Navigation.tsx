@@ -182,13 +182,13 @@ function MobileNavItem({
       onClick={onClick}
       className={cn(
         "relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors duration-200 cursor-pointer min-w-[60px]",
-        isActive ? "text-accent" : "text-text-tertiary"
+        isActive ? "text-text-primary" : "text-text-tertiary"
       )}
     >
       {isActive && (
         <motion.div
           layoutId="mobile-nav-indicator"
-          className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-accent"
+          className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-text-primary"
           transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
         />
       )}

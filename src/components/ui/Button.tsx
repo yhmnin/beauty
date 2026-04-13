@@ -19,7 +19,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost:
     "bg-transparent text-text-secondary hover:text-text-primary hover:bg-bg-tertiary",
   accent:
-    "bg-accent text-bg-primary hover:bg-accent-muted",
+    "bg-text-primary text-bg-primary hover:bg-text-secondary",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

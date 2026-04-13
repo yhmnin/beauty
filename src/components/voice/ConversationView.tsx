@@ -201,7 +201,7 @@ export function ConversationView() {
             whileTap={{ scale: 0.95 }}
             onClick={sendTextMessage}
             disabled={!textInput.trim() || isTyping}
-            className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-bg-primary disabled:opacity-30 cursor-pointer transition-opacity"
+            className="w-10 h-10 rounded-full bg-text-primary flex items-center justify-center text-bg-primary disabled:opacity-30 cursor-pointer transition-opacity"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M2 8H14M14 8L9 3M14 8L9 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
