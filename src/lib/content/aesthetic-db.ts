@@ -58,7 +58,7 @@ const PEOPLE: AestheticPerson[] = [
     birthYear: 1932,
     bio: "Industrial designer whose ten principles of good design became the foundation of modern product design. His work at Braun defined a generation of objects that proved restraint could be radical.",
     categories: ["industrial_design"],
-    imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600",
     notableWorks: ["Braun SK4", "Braun T3", "606 Universal Shelving System", "Braun ET66"],
   },
   {
@@ -68,7 +68,7 @@ const PEOPLE: AestheticPerson[] = [
     birthYear: 1941,
     bio: "Self-taught architect who transforms raw concrete into spaces of profound spiritual beauty. His buildings are meditations on light, water, and the relationship between nature and geometry.",
     categories: ["architecture"],
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1464146072230-91cabc968266?w=600",
     notableWorks: ["Church of the Light", "Chichu Art Museum", "Row House in Sumiyoshi", "Water Temple"],
   },
   {
@@ -89,7 +89,7 @@ const PEOPLE: AestheticPerson[] = [
     birthYear: 1958,
     bio: "Graphic designer and curator who redefined MUJI's visual identity. His philosophy of 'emptiness' celebrates the beauty of negative space and the potential of the unmarked.",
     categories: ["graphic_design", "book_design"],
-    imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600",
     notableWorks: ["MUJI Identity", "Designing Design", "White", "Ex-formation"],
   },
   {
@@ -100,7 +100,7 @@ const PEOPLE: AestheticPerson[] = [
     deathYear: 1978,
     bio: "Architect and designer whose obsessive attention to material joints and transitions created spaces of extraordinary tactile richness. Every detail in his work tells a story of craft meeting idea.",
     categories: ["architecture", "interior_design"],
-    imageUrl: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1531315396756-905d68d21b56?w=600",
     notableWorks: ["Brion Cemetery", "Olivetti Showroom", "Castelvecchio Museum", "Querini Stampalia"],
   },
   {
@@ -132,7 +132,7 @@ const PEOPLE: AestheticPerson[] = [
     birthYear: 1947,
     bio: "Antiquarian and interior designer whose spaces achieve a timeless quality by layering centuries of objects. His philosophy of wabi-sabi merges Eastern imperfection with European grandeur.",
     categories: ["interior_design", "antiques"],
-    imageUrl: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=600",
     notableWorks: ["Kanaal Complex", "Greenwich Hotel Penthouse", "Castello di Reschio"],
   },
   {
@@ -152,7 +152,7 @@ const PEOPLE: AestheticPerson[] = [
     birthYear: 1943,
     bio: "Architect who designs with atmosphere. His buildings are sensory experiences — the sound of footsteps, the weight of a door handle, the way light falls on stone. Pritzker Prize laureate who builds slowly and rarely.",
     categories: ["architecture"],
-    imageUrl: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600",
+    imageUrl: "https://images.unsplash.com/photo-1486718448742-163732cd1544?w=600",
     notableWorks: ["Therme Vals", "Bruder Klaus Chapel", "Kolumba Museum", "Zinc Mine Museum"],
   },
   {
@@ -918,12 +918,15 @@ export async function searchAestheticContent(
 }
 
 export function getAllContent(): ContentItem[] {
+  // Lazy-load bookmark sources to avoid circular deps
+  const { BOOKMARK_SOURCES } = require("./bookmark-sources");
   return [
     ...PEOPLE.map(personToContentItem),
     ...WORKS.map(workToContentItem),
     ...MOVEMENTS.map(movementToContentItem),
     ...EVENTS.map(eventToContentItem),
     ...EXTRA_CONTENT,
+    ...BOOKMARK_SOURCES,
   ];
 }
 
