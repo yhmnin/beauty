@@ -6,6 +6,7 @@ import { Card, CardImage, CardContent } from "@/components/ui/Card";
 import { MasonryGrid, MasonryItem } from "@/components/ui/MasonryGrid";
 import { DisplayText, Body, Caption, Label } from "@/components/ui/Typography";
 import { getAllContent, getRelatedItems, getContentByTag, getContentById } from "@/lib/content/aesthetic-db";
+import { getImageMeta } from "@/lib/content/image-urls";
 import { usePlatform } from "@/lib/platform/hooks";
 import { useAppStore, type ContentItem, type CardDisplayMode } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -373,6 +374,7 @@ function ContentDetailPanel({
   onTagClick: (tag: string) => void;
 }) {
   const relatedItems = useMemo(() => getRelatedItems(item), [item]);
+  const imageMeta = useMemo(() => getImageMeta(item.id), [item.id]);
   const { isPhone } = usePlatform();
 
   return (
@@ -400,8 +402,8 @@ function ContentDetailPanel({
       >
         {/* Left: Media */}
         <div className={cn(
-          "flex-shrink-0",
-          isPhone ? "w-full aspect-[4/3]" : "w-[55%] min-h-[70vh] relative"
+          "flex-shrink-0 relative",
+          isPhone ? "w-full aspect-[4/3]" : "w-[55%] min-h-[70vh]"
         )}>
           {item.mediaType === "video" && item.videoUrl ? (
             <div className="w-full h-full bg-bg-tertiary flex flex-col items-center justify-center gap-4 p-8">
@@ -454,6 +456,14 @@ function ContentDetailPanel({
               alt={item.title}
               className="w-full h-full object-cover"
             />
+          )}
+          {/* Image credit overlay — like Cosmos's attribution labels */}
+          {imageMeta && (
+            <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/50 to-transparent">
+              <p className="text-[10px] text-white/60 truncate">
+                {imageMeta.source} — {imageMeta.credit}
+              </p>
+            </div>
           )}
         </div>
 
