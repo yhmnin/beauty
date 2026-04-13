@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// In-memory user store (in production, use a real database)
-const users = new Map<string, { id: string; email: string; name: string; password: string; createdAt: number }>();
+import { findUserByEmail, generateToken, safeUser } from "@/lib/auth/user-db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,17 +9,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
 
-    const user = users.get(email);
+    const user = findUserByEmail(email);
     if (!user || user.password !== password) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    const { password: _, ...safeUser } = user;
-    return NextResponse.json({ user: safeUser, token: `beauty-${user.id}` });
+    const token = generateToken(user);
+    return NextResponse.json({ user: safeUser(user), token });
   } catch {
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }
-
-// Export users map for signup route
-export { users };

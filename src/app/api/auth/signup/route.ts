@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// Shared in-memory user store
-const users = new Map<string, { id: string; email: string; name: string; password: string; createdAt: number }>();
+import { findUserByEmail, createUser, generateToken, safeUser } from "@/lib/auth/user-db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,23 +8,18 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
-
-    if (users.has(email)) {
-      return NextResponse.json({ error: "Account already exists" }, { status: 409 });
+    if (password.length < 6) {
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
     }
 
-    const user = {
-      id: crypto.randomUUID(),
-      email,
-      name: name || email.split("@")[0],
-      password,
-      createdAt: Date.now(),
-    };
+    if (findUserByEmail(email)) {
+      return NextResponse.json({ error: "Account already exists. Try signing in." }, { status: 409 });
+    }
 
-    users.set(email, user);
+    const user = createUser(name || email.split("@")[0], email, password);
+    const token = generateToken(user);
 
-    const { password: _, ...safeUser } = user;
-    return NextResponse.json({ user: safeUser, token: `beauty-${user.id}` });
+    return NextResponse.json({ user: safeUser(user), token });
   } catch {
     return NextResponse.json({ error: "Signup failed" }, { status: 500 });
   }

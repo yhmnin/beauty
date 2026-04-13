@@ -7,12 +7,15 @@ import { cn } from "@/lib/utils";
 
 interface SaveButtonProps {
   contentId: string;
+  title?: string;
+  imageUrl?: string;
+  creator?: string;
   size?: "sm" | "md";
   className?: string;
   onAuthRequired?: () => void;
 }
 
-export function SaveButton({ contentId, size = "sm", className, onAuthRequired }: SaveButtonProps) {
+export function SaveButton({ contentId, title, imageUrl, creator, size = "sm", className, onAuthRequired }: SaveButtonProps) {
   const { isAuthenticated, isItemSaved, saveItem, unsaveItem } = useAuthStore();
   const saved = isItemSaved(contentId);
   const [animating, setAnimating] = useState(false);
@@ -30,7 +33,7 @@ export function SaveButton({ contentId, size = "sm", className, onAuthRequired }
     if (saved) {
       unsaveItem(contentId);
     } else {
-      saveItem(contentId);
+      saveItem(contentId, { title, imageUrl, creator });
     }
     setTimeout(() => setAnimating(false), 400);
   };

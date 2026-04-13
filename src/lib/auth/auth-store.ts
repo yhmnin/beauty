@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { apiFetch } from "@/lib/platform/api";
 
 export interface SavedItem {
   contentId: string;
   savedAt: number;
   collection?: string;
+  title?: string;
+  imageUrl?: string;
+  creator?: string;
 }
 
 export interface UserCollection {
@@ -24,15 +28,17 @@ export interface User {
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   savedItems: SavedItem[];
   collections: UserCollection[];
 
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
 
-  saveItem: (contentId: string, collection?: string) => void;
+  saveItem: (contentId: string, meta?: { title?: string; imageUrl?: string; creator?: string }, collection?: string) => void;
   unsaveItem: (contentId: string) => void;
   isItemSaved: (contentId: string) => boolean;
 
@@ -45,40 +51,69 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
       savedItems: [],
       collections: [
         { id: "default", name: "All Saves", createdAt: Date.now(), itemCount: 0 },
       ],
 
-      login: async (email: string, _password: string) => {
-        // Client-side auth — in production, replace with API call to NextAuth/Supabase
-        const stored = localStorage.getItem(`beauty-user-${email}`);
-        if (stored) {
-          const user = JSON.parse(stored) as User;
-          set({ user, isAuthenticated: true });
-          return true;
+      login: async (email, password) => {
+        try {
+          const res = await apiFetch("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+          if (data.user && data.token) {
+            set({ user: data.user, token: data.token, isAuthenticated: true });
+            return { ok: true };
+          }
+          return { ok: false, error: data.error || "Login failed" };
+        } catch {
+          return { ok: false, error: "Cannot connect to server" };
         }
-        return false;
       },
 
-      signup: async (name: string, email: string, _password: string) => {
-        const user: User = {
-          id: crypto.randomUUID(),
-          email,
-          name,
-          createdAt: Date.now(),
-        };
-        localStorage.setItem(`beauty-user-${email}`, JSON.stringify(user));
-        set({ user, isAuthenticated: true });
-        return true;
+      signup: async (name, email, password) => {
+        try {
+          const res = await apiFetch("/api/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({ name, email, password }),
+          });
+          const data = await res.json();
+          if (data.user && data.token) {
+            set({ user: data.user, token: data.token, isAuthenticated: true });
+            return { ok: true };
+          }
+          return { ok: false, error: data.error || "Signup failed" };
+        } catch {
+          return { ok: false, error: "Cannot connect to server" };
+        }
+      },
+
+      changePassword: async (oldPassword, newPassword) => {
+        const { token } = get();
+        if (!token) return { ok: false, error: "Not authenticated" };
+        try {
+          const res = await apiFetch("/api/auth/password", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ oldPassword, newPassword }),
+          });
+          const data = await res.json();
+          if (data.success) return { ok: true };
+          return { ok: false, error: data.error || "Failed" };
+        } catch {
+          return { ok: false, error: "Cannot connect to server" };
+        }
       },
 
       logout: () => {
-        set({ user: null, isAuthenticated: false });
+        set({ user: null, token: null, isAuthenticated: false });
       },
 
-      saveItem: (contentId: string, collection?: string) => {
+      saveItem: (contentId, meta, collection) => {
         const { savedItems, collections } = get();
         if (savedItems.some((s) => s.contentId === contentId)) return;
 
@@ -86,6 +121,9 @@ export const useAuthStore = create<AuthState>()(
           contentId,
           savedAt: Date.now(),
           collection: collection || "default",
+          title: meta?.title,
+          imageUrl: meta?.imageUrl,
+          creator: meta?.creator,
         };
 
         const updatedCollections = collections.map((c) =>
@@ -100,7 +138,7 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      unsaveItem: (contentId: string) => {
+      unsaveItem: (contentId) => {
         const { savedItems, collections } = get();
         const item = savedItems.find((s) => s.contentId === contentId);
         if (!item) return;
@@ -117,11 +155,11 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      isItemSaved: (contentId: string) => {
+      isItemSaved: (contentId) => {
         return get().savedItems.some((s) => s.contentId === contentId);
       },
 
-      createCollection: (name: string) => {
+      createCollection: (name) => {
         const id = crypto.randomUUID();
         const { collections } = get();
         set({
@@ -133,7 +171,7 @@ export const useAuthStore = create<AuthState>()(
         return id;
       },
 
-      deleteCollection: (id: string) => {
+      deleteCollection: (id) => {
         if (id === "default") return;
         const { collections, savedItems } = get();
         set({
@@ -144,7 +182,7 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      getCollectionItems: (collectionId: string) => {
+      getCollectionItems: (collectionId) => {
         return get().savedItems.filter(
           (s) => s.collection === collectionId || (collectionId === "default" && !s.collection)
         );
@@ -154,6 +192,7 @@ export const useAuthStore = create<AuthState>()(
       name: "beauty-auth",
       partialize: (state) => ({
         user: state.user,
+        token: state.token,
         isAuthenticated: state.isAuthenticated,
         savedItems: state.savedItems,
         collections: state.collections,

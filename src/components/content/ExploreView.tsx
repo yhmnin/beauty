@@ -286,7 +286,7 @@ function MinimalCard({ item, onClick }: { item: ContentItem; onClick: () => void
       {/* Hover overlay with title + save */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
         <p className="text-white text-xs font-medium truncate flex-1 mr-2">{item.title}</p>
-        <SaveButton contentId={item.id} size="sm" />
+        <SaveButton contentId={item.id} title={item.title} imageUrl={item.imageUrl} creator={item.creator} size="sm" />
       </div>
     </Card>
   );
@@ -328,7 +328,7 @@ function InfoCard({
           </div>
         )}
         <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <SaveButton contentId={item.id} size="sm" />
+          <SaveButton contentId={item.id} title={item.title} imageUrl={item.imageUrl} creator={item.creator} size="sm" />
         </div>
       </div>
       <CardContent>

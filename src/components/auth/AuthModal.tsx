@@ -27,13 +27,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       if (mode === "signup") {
         if (!name.trim()) { setError("Name is required"); setLoading(false); return; }
-        const ok = await signup(name, email, password);
-        if (ok) onClose();
-        else setError("Signup failed");
+        const result = await signup(name, email, password);
+        if (result.ok) onClose();
+        else setError(result.error || "Signup failed");
       } else {
-        const ok = await login(email, password);
-        if (ok) onClose();
-        else setError("No account found. Try signing up.");
+        const result = await login(email, password);
+        if (result.ok) onClose();
+        else setError(result.error || "Login failed");
       }
     } catch {
       setError("Something went wrong");
