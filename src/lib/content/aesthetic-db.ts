@@ -1,5 +1,5 @@
 import type { ContentItem } from "@/lib/store";
-import { REAL_IMAGES } from "./image-urls";
+import { getImageUrl } from "./image-urls";
 
 export interface AestheticPerson {
   id: string;
@@ -813,7 +813,7 @@ function personToContentItem(person: AestheticPerson): ContentItem {
     id: person.id,
     title: person.nameJa ? `${person.name} ${person.nameJa}` : person.name,
     description: person.bio,
-    imageUrl: REAL_IMAGES[person.id] || person.imageUrl,
+    imageUrl: getImageUrl(person.id) || person.imageUrl,
     category: person.categories[0],
     creator: person.nationality,
     year: `b. ${person.birthYear}${person.deathYear ? ` — d. ${person.deathYear}` : ""}`,
@@ -835,7 +835,7 @@ function workToContentItem(work: AestheticWork): ContentItem {
     id: work.id,
     title: work.title,
     description: work.description,
-    imageUrl: REAL_IMAGES[work.id] || work.imageUrl,
+    imageUrl: getImageUrl(work.id) || work.imageUrl,
     category: work.category,
     creator: work.creator,
     creatorId: creatorPerson?.id,
@@ -862,7 +862,7 @@ function movementToContentItem(movement: AestheticMovement): ContentItem {
     id: movement.id,
     title: movement.name,
     description: movement.description,
-    imageUrl: REAL_IMAGES[movement.id] || movement.imageUrl,
+    imageUrl: getImageUrl(movement.id) || movement.imageUrl,
     category: "movement",
     year: movement.period,
     tags: movement.characteristics,
@@ -877,7 +877,7 @@ function eventToContentItem(event: AestheticEvent): ContentItem {
     id: event.id,
     title: event.name,
     description: event.description,
-    imageUrl: REAL_IMAGES[event.id] || event.imageUrl,
+    imageUrl: getImageUrl(event.id) || event.imageUrl,
     category: event.category,
     year: event.year,
     tags: [event.location],

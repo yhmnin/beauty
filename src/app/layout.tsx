@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
+import { ImageResolver } from "@/components/content/ImageResolver";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -55,6 +56,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <ImageResolver />
         <ServiceWorkerRegistrar />
       </body>
     </html>
