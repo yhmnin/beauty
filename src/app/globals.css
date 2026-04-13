@@ -1,5 +1,62 @@
 @import "tailwindcss";
 
+/* ── KH Giga: Display / Headings (supports CJK + Latin) ── */
+@font-face {
+  font-family: "KH Giga";
+  src: url("/fonts/KHGiga-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KH Giga";
+  src: url("/fonts/KHGiga-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KH Giga";
+  src: url("/fonts/KHGiga-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── KH Teka: Body / UI text (supports CJK + Latin) ── */
+@font-face {
+  font-family: "KH Teka";
+  src: url("/fonts/KHTeka-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KH Teka";
+  src: url("/fonts/KHTeka-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KH Teka";
+  src: url("/fonts/KHTeka-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Type Scale (pt → px conversion at 1pt ≈ 1.333px)
+ *
+ * Display  32pt  →  42px  /  2.625rem
+ * H1       28pt  →  37px  /  2.333rem
+ * H2       20pt  →  27px  /  1.667rem
+ * Body     16pt  →  21px  /  1.333rem  → mapped to 1rem (base)
+ * Caption  14pt  →  19px  /  1.167rem  → 0.875rem
+ * Small    12pt  →  16px  /  1rem      → 0.75rem
+ */
+
 :root {
   --bg-primary: #0A0A0A;
   --bg-secondary: #111111;
@@ -23,9 +80,17 @@
   --radius-xl: 32px;
   --radius-full: 9999px;
 
-  --font-display: var(--font-instrument-serif);
-  --font-body: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: "KH Giga", "Noto Sans SC", "Noto Sans JP", system-ui, sans-serif;
+  --font-body: "KH Teka", "Noto Sans SC", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Type scale tokens */
+  --text-display: 2.625rem;
+  --text-h1: 2.333rem;
+  --text-h2: 1.667rem;
+  --text-body: 1rem;
+  --text-caption: 0.875rem;
+  --text-small: 0.75rem;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
@@ -52,6 +117,7 @@
   --font-sans: var(--font-body);
   --font-serif: var(--font-display);
   --font-mono: var(--font-mono);
+  --font-heading: var(--font-display);
 }
 
 * {
@@ -62,12 +128,15 @@
 html {
   background: var(--bg-primary);
   color-scheme: dark;
+  font-size: 16px;
 }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -76,7 +145,6 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* On phones with bottom nav, add extra bottom padding to content */
 @media (max-width: 639px) {
   .has-bottom-nav {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
