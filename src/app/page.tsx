@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAppStore } from "@/lib/store";
 import { usePlatform } from "@/lib/platform/hooks";
 import { OpeningSequence } from "@/components/voice/OpeningSequence";
-import { HomeView } from "@/components/content/HomeView";
 import { ConversationView } from "@/components/voice/ConversationView";
 import { ExploreView } from "@/components/content/ExploreView";
 import { ProfileView } from "@/components/content/ProfileView";
@@ -31,15 +30,15 @@ export default function Home() {
           </motion.div>
         )}
 
-        {view === "home" && (
+        {(view === "explore" || view === "home") && (
           <motion.div
-            key="home"
+            key="explore"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <HomeView />
+            <ExploreView />
           </motion.div>
         )}
 
@@ -53,18 +52,6 @@ export default function Home() {
             className="h-screen"
           >
             <ConversationView />
-          </motion.div>
-        )}
-
-        {view === "explore" && (
-          <motion.div
-            key="explore"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <ExploreView />
           </motion.div>
         )}
 

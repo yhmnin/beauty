@@ -1,17 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAppStore, type AppView } from "@/lib/store";
+import { useAuthStore } from "@/lib/auth/auth-store";
 import { usePlatform } from "@/lib/platform/hooks";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const navItems: { id: AppView; label: string; icon: React.ReactNode }[] = [
   {
-    id: "home",
-    label: "Home",
+    id: "explore",
+    label: "Explore",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 7.5L10 2L17 7.5V16C17 16.5523 16.5523 17 16 17H4C3.44772 17 3 16.5523 3 16V7.5Z" />
+        <rect x="3" y="3" width="6" height="6" rx="1" />
+        <rect x="11" y="3" width="6" height="4" rx="1" />
+        <rect x="3" y="11" width="6" height="4" rx="1" />
+        <rect x="11" y="9" width="6" height="6" rx="1" />
       </svg>
     ),
   },
@@ -22,18 +28,6 @@ const navItems: { id: AppView; label: string; icon: React.ReactNode }[] = [
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="10" cy="10" r="7" />
         <circle cx="10" cy="10" r="3" />
-      </svg>
-    ),
-  },
-  {
-    id: "explore",
-    label: "Explore",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="6" height="6" rx="1" />
-        <rect x="11" y="3" width="6" height="4" rx="1" />
-        <rect x="3" y="11" width="6" height="4" rx="1" />
-        <rect x="11" y="9" width="6" height="6" rx="1" />
       </svg>
     ),
   },
@@ -52,25 +46,34 @@ const navItems: { id: AppView; label: string; icon: React.ReactNode }[] = [
 export function Navigation() {
   const { view, setView, hasCompletedOpening } = useAppStore();
   const { screenCategory } = usePlatform();
+  const [showAuth, setShowAuth] = useState(false);
 
   if (!hasCompletedOpening || view === "opening") return null;
 
   const isPhone = screenCategory === "phone";
 
-  if (isPhone) {
-    return <MobileNav view={view} setView={setView} />;
-  }
-
-  return <DesktopNav view={view} setView={setView} />;
+  return (
+    <>
+      {isPhone
+        ? <MobileNav view={view} setView={setView} />
+        : <DesktopNav view={view} setView={setView} onAuthClick={() => setShowAuth(true)} />
+      }
+      <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
+    </>
+  );
 }
 
 function DesktopNav({
   view,
   setView,
+  onAuthClick,
 }: {
   view: AppView;
   setView: (v: AppView) => void;
+  onAuthClick: () => void;
 }) {
+  const { user, isAuthenticated, logout } = useAuthStore();
+
   return (
     <AnimatePresence>
       <motion.nav
@@ -81,7 +84,7 @@ function DesktopNav({
         style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
       >
         <motion.button
-          onClick={() => setView("home")}
+          onClick={() => setView("explore")}
           className="font-serif text-xl tracking-tight text-text-primary cursor-pointer"
           whileHover={{ opacity: 0.7 }}
         >
@@ -99,7 +102,26 @@ function DesktopNav({
           ))}
         </div>
 
-        <div className="w-[60px]" />
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setView("profile")}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-full)] bg-bg-secondary/80 border border-border text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            >
+              <div className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center text-[10px] font-medium text-text-primary">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-xs font-medium hidden md:inline">{user.name}</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onAuthClick}
+            className="px-4 py-1.5 rounded-[var(--radius-full)] bg-text-primary text-bg-primary text-xs font-medium hover:bg-text-secondary transition-colors cursor-pointer"
+          >
+            Sign In
+          </button>
+        )}
       </motion.nav>
     </AnimatePresence>
   );

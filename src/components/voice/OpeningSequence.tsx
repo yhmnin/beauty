@@ -15,7 +15,7 @@ export function OpeningSequence() {
       setTimeout(() => setPhase("fade"), 5500),
       setTimeout(() => {
         setHasCompletedOpening(true);
-        setView("home");
+        setView("explore");
       }, 7000),
     ];
 
@@ -24,7 +24,7 @@ export function OpeningSequence() {
 
   const skipOpening = useCallback(() => {
     setHasCompletedOpening(true);
-    setView("home");
+    setView("explore");
   }, [setView, setHasCompletedOpening]);
 
   return (

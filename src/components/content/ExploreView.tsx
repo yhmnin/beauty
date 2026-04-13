@@ -9,6 +9,7 @@ import { getAllContent, getRelatedItems, getContentByTag, getContentById } from 
 import { getImageMeta } from "@/lib/content/image-urls";
 import { usePlatform } from "@/lib/platform/hooks";
 import { useAppStore, type ContentItem, type CardDisplayMode } from "@/lib/store";
+import { SaveButton } from "@/components/auth/SaveButton";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -282,9 +283,10 @@ function MinimalCard({ item, onClick }: { item: ContentItem; onClick: () => void
           <MediaIcon type={item.mediaType} size={12} />
         </div>
       )}
-      {/* Hover overlay with title */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-        <p className="text-white text-xs font-medium truncate">{item.title}</p>
+      {/* Hover overlay with title + save */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+        <p className="text-white text-xs font-medium truncate flex-1 mr-2">{item.title}</p>
+        <SaveButton contentId={item.id} size="sm" />
       </div>
     </Card>
   );
@@ -305,7 +307,7 @@ function InfoCard({
   onCreatorClick: (creatorId?: string) => void;
 }) {
   return (
-    <Card onClick={onClick}>
+    <Card onClick={onClick} className="group">
       <div className="relative">
         <CardImage
           src={item.imageUrl}
@@ -325,6 +327,9 @@ function InfoCard({
             </p>
           </div>
         )}
+        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <SaveButton contentId={item.id} size="sm" />
+        </div>
       </div>
       <CardContent>
         <div className="flex items-start justify-between gap-2 mb-1">
