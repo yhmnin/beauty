@@ -151,6 +151,27 @@ export class RealtimeVoiceClient {
           },
           {
             type: "function",
+            name: "discover_from_web",
+            description:
+              "Search the REAL WEB for design images, artworks, and architecture from museums, archives, and authoritative design sources. Use this when the user asks about something specific, when local results are not enough, or when you want to show real photographs of works. This searches Wikimedia Commons, V&A Museum, Rijksmuseum, and web image search in real-time.",
+            parameters: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "string",
+                  description: "Descriptive search query, e.g. 'Tadao Ando concrete architecture' or 'Japanese mingei craft pottery'",
+                },
+                sources: {
+                  type: "array",
+                  items: { type: "string", enum: ["wikimedia", "vanda", "rijks", "web"] },
+                  description: "Which sources to search. Default: all available.",
+                },
+              },
+              required: ["query"],
+            },
+          },
+          {
+            type: "function",
             name: "update_taste_profile",
             description:
               "Record the user's aesthetic preference based on what they express interest in during conversation.",
@@ -219,6 +240,44 @@ export class RealtimeVoiceClient {
         });
         result = await response.json();
         useAppStore.getState().setSearchResults(result as never);
+      } else if (name === "discover_from_web") {
+        const response = await apiFetch("/api/discover", {
+          method: "POST",
+          body: JSON.stringify({
+            query: parsedArgs.query,
+            sources: parsedArgs.sources || ["wikimedia", "vanda", "web"],
+            limit: 8,
+            withProvenance: true,
+          }),
+        });
+        const discoveryResult = await response.json();
+        if (discoveryResult.items) {
+          const asContentItems = discoveryResult.items.map((d: any) => ({
+            id: d.id,
+            title: d.title,
+            description: d.description || d.credit || "",
+            imageUrl: d.imageUrl,
+            category: "discovered",
+            creator: d.creator || d.sourceName,
+            year: d.year || "",
+            tags: [d.sourceName],
+            mediaType: "image",
+            sourceUrl: d.sourceUrl,
+          }));
+          useAppStore.getState().setSearchResults(asContentItems);
+          result = {
+            found: discoveryResult.count,
+            items: discoveryResult.items.slice(0, 4).map((d: any) => ({
+              title: d.title,
+              creator: d.creator,
+              year: d.year,
+              source: d.sourceName,
+              description: d.description,
+            })),
+          };
+        } else {
+          result = { found: 0, message: "No results found" };
+        }
       } else if (name === "update_taste_profile") {
         result = { success: true, recorded: parsedArgs.interest };
       }
@@ -320,10 +379,14 @@ Your knowledge spans:
 
 When the user describes what they find beautiful or interesting:
 1. Acknowledge their taste with genuine appreciation
-2. Call search_aesthetic_content to find relevant works and people
-3. Share the story behind the works — the creator, the era, the philosophy
-4. Gently suggest connections they might not have considered
-5. Call update_taste_profile to remember their preferences
+2. First call search_aesthetic_content to check our curated knowledge base
+3. ALWAYS also call discover_from_web to search the real web — museums, archives, and design sources — for actual photographs and images of the works
+4. Share the story behind the works — the creator, the era, the philosophy
+5. When discover_from_web returns results, describe what you found with excitement: "I found something remarkable..." and narrate the discovery like showing someone a treasure
+6. Gently suggest connections they might not have considered
+7. Call update_taste_profile to remember their preferences
+
+IMPORTANT: You have a superpower that no other platform has — you can search the entire web for real images from museums, archives, and design publications IN REAL TIME while talking. Use discover_from_web liberally. When talking about Tadao Ando, search for his actual buildings. When discussing Dieter Rams, find real Braun product photos. This makes the conversation alive with real visual content.
 
 Always be poetic but precise. Your voice should feel like discovering a beautiful book in a quiet shop.
 

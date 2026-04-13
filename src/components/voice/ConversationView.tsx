@@ -227,33 +227,53 @@ export function ConversationView() {
           className="w-full max-w-2xl mt-6"
         >
           <p className="text-text-tertiary text-xs uppercase tracking-widest mb-3">
-            Related Works
+            {searchResults.some((r) => r.category === "discovered")
+              ? "Discovered from the Web"
+              : "Related Works"}
           </p>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {searchResults.slice(0, 6).map((item) => (
-              <motion.div
+            {searchResults.slice(0, 8).map((item, i) => (
+              <motion.a
                 key={item.id}
+                href={item.sourceUrl || "#"}
+                target={item.sourceUrl ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4 }}
-                className="flex-shrink-0 w-36 rounded-[var(--radius-md)] overflow-hidden bg-bg-secondary border border-border cursor-pointer"
+                className="flex-shrink-0 w-40 rounded-[var(--radius-md)] overflow-hidden bg-bg-secondary border border-border cursor-pointer group"
               >
-                <div className="aspect-[3/4] bg-bg-tertiary">
+                <div className="aspect-square bg-bg-tertiary relative">
                   {item.imageUrl && (
                     <img
                       src={item.imageUrl}
                       alt={item.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   )}
+                  {item.category === "discovered" && (
+                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-bg-primary/70 backdrop-blur-sm">
+                      <span className="text-[8px] text-text-secondary uppercase tracking-wider">Live</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div className="p-2">
-                  <p className="text-xs text-text-primary truncate">
+                  <p className="text-xs text-text-primary truncate leading-tight">
                     {item.title}
                   </p>
                   <p className="text-[10px] text-text-tertiary truncate">
                     {item.creator}
                   </p>
+                  {item.tags?.[0] && item.category === "discovered" && (
+                    <p className="text-[9px] text-accent/70 truncate mt-0.5">
+                      via {item.tags[0]}
+                    </p>
+                  )}
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         </motion.div>
