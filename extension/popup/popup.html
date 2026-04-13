@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Logged out state -->
+    <div id="auth-view" class="view">
+      <div class="logo">Beauty</div>
+      <p class="subtitle">Your space for aesthetic inspiration</p>
+      <div class="form-group">
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="login-btn" class="btn-primary">Sign In</button>
+      </div>
+      <p class="switch-text">
+        <span id="switch-mode">Don't have an account? Sign up</span>
+      </p>
+      <p id="auth-error" class="error"></p>
+    </div>
+
+    <!-- Logged in state -->
+    <div id="main-view" class="view" style="display:none">
+      <div class="header">
+        <div class="logo-small">Beauty</div>
+        <div class="user-info">
+          <span id="user-name"></span>
+          <button id="logout-btn" class="btn-ghost">Sign out</button>
+        </div>
+      </div>
+
+      <div class="save-section">
+        <p class="label">Save current page</p>
+        <button id="save-page-btn" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 2.5V14L8 10.5L13 14V2.5C13 2.22 12.78 2 12.5 2H3.5C3.22 2 3 2.22 3 2.5Z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Save Page
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span id="save-count">0</span>
+          <span class="stat-label">Saved</span>
+        </div>
+      </div>
+
+      <a href="http://localhost:3000" target="_blank" class="open-app">Open Beauty →</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
