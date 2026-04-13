@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DisplayText, Heading, Body, Caption, Label } from "@/components/ui/Typography";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -14,11 +14,18 @@ import { cn } from "@/lib/utils";
 
 export function ProfileView() {
   const { conversationHistory } = useAppStore();
-  const { user, isAuthenticated, savedItems, collections, logout, changePassword, unsaveItem } = useAuthStore();
+  const { user, isAuthenticated, savedItems, collections, logout, changePassword, unsaveItem, syncFromServer } = useAuthStore();
   const { isPhone } = usePlatform();
   const [showAuth, setShowAuth] = useState(false);
   const [activeCollection, setActiveCollection] = useState("default");
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+
+  // Sync saved items from server (picks up extension saves)
+  useEffect(() => {
+    if (isAuthenticated) {
+      syncFromServer();
+    }
+  }, [isAuthenticated, syncFromServer]);
 
   // If not logged in, show login prompt
   if (!isAuthenticated) {

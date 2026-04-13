@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { findUserByToken } from "@/lib/auth/user-db";
 
 export interface SavedContent {
   id: string;
@@ -33,17 +34,18 @@ export async function POST(req: NextRequest) {
       savedAt: Date.now(),
     };
 
-    // Extract user from auth header if present
     const auth = req.headers.get("authorization");
     if (auth?.startsWith("Bearer ")) {
-      item.userId = auth.slice(7);
+      const token = auth.slice(7);
+      const user = findUserByToken(token);
+      if (user) item.userId = user.id;
     }
 
     savedContent.push(item);
 
     return NextResponse.json({
       success: true,
-      item: { id: item.id, type: item.type, savedAt: item.savedAt },
+      item,
     });
   } catch {
     return NextResponse.json({ error: "Save failed" }, { status: 500 });
@@ -51,7 +53,17 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
+  let userId: string | null = req.nextUrl.searchParams.get("userId");
+
+  // Also support auth token
+  if (!userId) {
+    const auth = req.headers.get("authorization");
+    if (auth?.startsWith("Bearer ")) {
+      const token = auth.slice(7);
+      const user = findUserByToken(token);
+      if (user) userId = user.id;
+    }
+  }
 
   const items = userId
     ? savedContent.filter((s) => s.userId === userId)
@@ -59,6 +71,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     count: items.length,
-    items: items.slice(-50).reverse(),
+    items: items.slice(-100).reverse(),
   });
 }

@@ -37,6 +37,7 @@ interface AuthState {
   signup: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  syncFromServer: () => Promise<void>;
 
   saveItem: (contentId: string, meta?: { title?: string; imageUrl?: string; creator?: string }, collection?: string) => void;
   unsaveItem: (contentId: string) => void;
@@ -113,8 +114,49 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, isAuthenticated: false });
       },
 
+      syncFromServer: async () => {
+        const { token, savedItems } = get();
+        if (!token) return;
+        try {
+          const res = await apiFetch("/api/save", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data.items || data.items.length === 0) return;
+
+          const existingIds = new Set(savedItems.map((s) => s.contentId));
+          const newItems: SavedItem[] = [];
+
+          for (const item of data.items) {
+            const contentId = item.id;
+            if (existingIds.has(contentId)) continue;
+            newItems.push({
+              contentId,
+              savedAt: item.savedAt,
+              collection: "default",
+              title: item.sourceTitle || item.url || "",
+              imageUrl: item.type === "image" ? item.url : undefined,
+            });
+          }
+
+          if (newItems.length > 0) {
+            const { collections } = get();
+            const defaultCol = collections.find((c) => c.id === "default");
+            set({
+              savedItems: [...newItems, ...savedItems],
+              collections: collections.map((c) =>
+                c.id === "default"
+                  ? { ...c, itemCount: (defaultCol?.itemCount || 0) + newItems.length }
+                  : c
+              ),
+            });
+          }
+        } catch {}
+      },
+
       saveItem: (contentId, meta, collection) => {
-        const { savedItems, collections } = get();
+        const { savedItems, collections, token } = get();
         if (savedItems.some((s) => s.contentId === contentId)) return;
 
         const newItem: SavedItem = {
@@ -125,6 +167,20 @@ export const useAuthStore = create<AuthState>()(
           imageUrl: meta?.imageUrl,
           creator: meta?.creator,
         };
+
+        // Also push to server API (so extension can see it)
+        if (token) {
+          apiFetch("/api/save", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              type: "image",
+              url: meta?.imageUrl || "",
+              sourceUrl: contentId,
+              sourceTitle: meta?.title || contentId,
+            }),
+          }).catch(() => {});
+        }
 
         const updatedCollections = collections.map((c) =>
           c.id === (collection || "default")
